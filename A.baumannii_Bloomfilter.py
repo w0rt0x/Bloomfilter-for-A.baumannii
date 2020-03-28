@@ -1,4 +1,4 @@
-class AcinetobacterBloomfilter:
+class AbaumanniiBloomfilter:
     # Implementation of the Bloomfilter Project for Acinetobacter baumannii
     # Code partly from https://github.com/Phelimb/BIGSI
 
