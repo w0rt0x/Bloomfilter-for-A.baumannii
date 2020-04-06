@@ -77,16 +77,16 @@ class AbaumanniiBloomfilter:
 
     # File management
 
-    def save_clonetypes(self):
+    def save_clonetypes(self, path):
         # saving filters of clonetypes
 
         # creating file and saving matrix with the bitarray modul
-        with open('/media/samg/428C-7EBB/Filter_for_IC.txt', 'wb') as fh:
+        with open(path, 'wb') as fh:
 
             # writing to file with bitarray command
             self.matrix.tofile(fh)
 
-    def read_clonetypes(self):
+    def read_clonetypes(self, path):
         # reading filters from file
 
         # Source:
@@ -94,7 +94,7 @@ class AbaumanniiBloomfilter:
 
         temp = bitarray()
 
-        with open('/media/samg/428C-7EBB/Filter_for_IC_20.txt', 'rb') as fh:
+        with open(path, 'rb') as fh:
             temp.fromfile(fh)
         self.matrix = temp
 
