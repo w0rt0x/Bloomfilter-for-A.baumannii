@@ -1,3 +1,7 @@
+import mmh3
+from bitarray import bitarray
+from Bio import SeqIO
+
 class AbaumanniiBloomfilter:
     # Implementation of the Bloomfilter Project for Acinetobacter baumannii
     # Code partly from https://github.com/Phelimb/BIGSI
