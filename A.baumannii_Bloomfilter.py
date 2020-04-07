@@ -192,3 +192,34 @@ class AbaumanniiBloomfilter:
 
                 # trains k-mere into filter
                 self.lookup(str(sequence.seq[i : i + self.k]))
+   
+    def lookup_fastq(self, path):
+        # lookup for fastq files,
+        # Source: http://biopython.org/DIST/docs/tutorial/Tutorial.html , 20.1.11  Indexing a FASTQ file
+
+        # read fastq file
+        fq_dict = SeqIO.index(path, "fastq")
+        # getting number of reads in file
+        reads = len(fq_dict)
+
+        # counter for kmeres
+        self.number_of_kmeres = 0
+        seqs = len(fq_dict)
+        print('Reads: ' , seqs)
+        c = 0                                                                                                                   
+	# lookup for just 100.000 reads                                                                                                  
+	for i in fq_dict.keys():
+            if c == 100000:
+                break
+            c += 1
+            # getting read
+            single_read = fq_dict[i].seq
+            #print(single_read)
+            #lokkup for k-meres in read
+            for j in range(len(single_read)):
+
+                # updating counter
+                self.number_of_kmeres += 1
+
+                # lookup for kmer
+                self.lookup(str(single_read[j: j + self.k]))
