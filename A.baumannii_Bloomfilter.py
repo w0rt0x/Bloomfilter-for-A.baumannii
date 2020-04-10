@@ -38,9 +38,6 @@ class AbaumanniiBloomfilter:
         # sets k-mer size
         self.k = new
 
-    def reset_hits(self):
-        self.hits_per_filter = [0] * self.clonetypes
-
     def set_matrix(self):
         # re-creates matrix
 
@@ -179,8 +176,9 @@ class AbaumanniiBloomfilter:
     def lookup_sequence(self, path):
         # uses lookup function for whole sequence
 
-        # Counter of k-meres
+        # Counter of k-meres, resetting hits
         self.number_of_kmeres = 0
+	self.hits_per_filter = [0] * self.clonetypes
         # for each sequence (in multi-FASTA file)
         for sequence in SeqIO.parse(path, "fasta"):
 
@@ -223,3 +221,60 @@ class AbaumanniiBloomfilter:
 
                 # lookup for kmer
                 self.lookup(str(single_read[j: j + self.k]))
+		
+    def add_filter(self):
+        # adds one EMPTY(!) filter to the current filter
+        # the new filter will be added on the back
+        # use the train(seq) function with the
+
+        # the new filter is a column that has to be inserted
+        # by inserting bits, the index will change step by step. To avoid indexing errors,
+        # the bits will be inserted from end to start. Because of that, no new index has to be calculated
+
+        # index starts at the end and gets smaller
+        index = self.clonetypes * self.array_size
+
+        for i in range(self.array_size):
+
+            # inserting a 0
+            self.matrix.insert(index, False)
+
+            # decreasing index value
+            index = index - self.clonetypes
+
+        # updating parameters
+        self.clonetypes += 1
+        self.hits_per_filter = [0] * self.clonetypes
+
+    def remove_filter(self, ct):
+        # takes an index and deletes filter with that index
+        # works, in principle, just as add_filter()
+        # Please Note: just as in the train function, the filters start with 0
+        # that means, if you want to delete filter 4, you have to enter the index 3, etc
+
+        index = self.clonetypes * self.array_size
+        index = (index + ct) - self.clonetypes
+
+        for i in range(self.array_size):
+            # inserting a 0
+            t = self.matrix.pop(index)
+
+            # decreasing index value
+            index = index - self.clonetypes
+
+        # updating parameters
+        self.clonetypes -= 1
+        self.hits_per_filter = [0] * self.clonetypes
+	
+    def get_score(self):
+        # calculates score for all clonetypes
+        # Score is #hits / #kmeres
+
+        score = []
+
+        # calculates float for each value in [hits per filter]
+        for i in range(self.clonetypes):
+	    # add rounded value
+            score.append(round(float(self.hits_per_filter[i]) / float(self.number_of_kmeres), 2))
+
+        return score
