@@ -182,14 +182,12 @@ class AbaumanniiBloomfilter:
         # for each sequence (in multi-FASTA file)
         for sequence in SeqIO.parse(path, "fasta"):
 
-            # Updating number of K-meres
-            self.number_of_kmeres += len(sequence.seq) - self.k + 1
-
             # for each k-mere
             for i in range(len(sequence.seq) - self.k + 1):
 
                 # trains k-mere into filter
                 self.lookup(str(sequence.seq[i : i + self.k]))
+		self.number_of_kmeres += 1
    
     def lookup_fastq(self, path):
         # lookup for fastq files,
