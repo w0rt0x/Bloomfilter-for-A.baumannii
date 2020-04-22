@@ -220,3 +220,31 @@ class AbaumanniiBloomfilter:
 
     def get_names(self):
         return self.names
+    
+    def lookup_fastq(self, path, number_of_reads):
+        # lookup for fastq files,                                                                                               
+        # Source: http://biopython.org/DIST/docs/tutorial/Tutorial.html , 20.1.11  Indexing a FASTQ file
+        # read fastq file 
+
+        fq_dict = SeqIO.index(path, "fastq")
+        # getting number of reads in file 
+        reads = len(fq_dict)
+
+        # counter for kmeres
+        self.number_of_kmeres = 0
+        seqs = len(fq_dict)
+        c = 0
+        # lookup for all reads 
+        for i in fq_dict.keys():
+            if c == number_of_reads:
+                break
+            c += 1
+            # getting read                                                                                                          
+            single_read = fq_dict[i].seq
+            # lookup for k-meres in read
+            for j in range(len(single_read)):
+                # updating counter
+                self.number_of_kmeres += 1
+
+                # lookup for kmer                                                                                                       
+                self.lookup(str(single_read[j: j + self.k])) 
