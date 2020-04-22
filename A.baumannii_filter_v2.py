@@ -1,7 +1,6 @@
 import mmh3
 from bitarray import bitarray
 from Bio import SeqIO
-import threading
 
 
 class AbaumanniiBloomfilter:
@@ -10,11 +9,12 @@ class AbaumanniiBloomfilter:
 
     clonetypes = 8
     hits_per_filter = [0] * clonetypes
-    array_size = 8
-    hashes = 2
+    array_size = 98501457
+    hashes = 7
     k = 20
     names = ['IC1', 'IC2', 'IC3', 'IC4', 'IC5', 'IC6', 'IC7', 'IC8']
-    lookup = [True, True, True, True, True, True, True, True]
+    lookup_ct = [True, True, True, True, True, True, True, True]
+    number_of_kmeres = 1
 
     def __init__(self):
 
@@ -35,6 +35,9 @@ class AbaumanniiBloomfilter:
 
     # Getter
 
+    def set_lookup(self, new):
+        self.lookup_ct = new
+
     def get_hits_per_filter(self):
         return self.hits_per_filter
 
@@ -44,11 +47,11 @@ class AbaumanniiBloomfilter:
 
     # File management
 
-    def save_clonetypes(self):
+    def save_clonetypes(self, path):
         # saving filters of clonetypes
 
         # creating file and saving matrix with the bitarray modul
-        with open('/media/samg/428C-7EBB/Filter_for_IC.txt', 'wb') as fh:
+        with open(path, 'wb') as fh:
             # writing to file with bitarray command
             self.matrix.tofile(fh)
 
@@ -110,7 +113,7 @@ class AbaumanniiBloomfilter:
             for j in range(len(col)):
 
                 # if that cell is True und no False before
-                if col[j] & hits[j]:
+                if col[j] & hits[j] :
                     pass
                 else:
                     hits[j] = False
@@ -119,7 +122,7 @@ class AbaumanniiBloomfilter:
         for i in range(len(hits)):
 
             # If hit is True
-            if hits[i]:
+            if hits[i] & self.lookup_ct[i]:
                 # Update hit counter
                 self.hits_per_filter[i] += 1
 
@@ -189,6 +192,9 @@ class AbaumanniiBloomfilter:
         # appending new name of filter
         self.names.append(name)
 
+        # adding True to lookup
+        self.lookup_ct.append(True)
+
 
     def remove_filter(self, ct):
         # deletes filter
@@ -196,6 +202,7 @@ class AbaumanniiBloomfilter:
         # also deletes name from name-list
 
         del self.names[ct]
+        del self.lookup_ct[ct]
         self.clonetypes -= 1
 
         # always deleting same position with pop()
@@ -213,38 +220,38 @@ class AbaumanniiBloomfilter:
         # calculates float for each value in [hits per filter]
         for i in range(self.clonetypes):
             score.append(round(float(self.hits_per_filter[i]) / float(self.number_of_kmeres), 2))
-        print(self.number_of_kmeres)
-        print(self.hits_per_filter)
+
 
         return score
 
     def get_names(self):
         return self.names
-    
+
     def lookup_fastq(self, path, number_of_reads):
-        # lookup for fastq files,                                                                                               
+        # lookup for fastq files,
         # Source: http://biopython.org/DIST/docs/tutorial/Tutorial.html , 20.1.11  Indexing a FASTQ file
-        # read fastq file 
+        # read fastq file
 
         fq_dict = SeqIO.index(path, "fastq")
-        # getting number of reads in file 
+        # getting number of reads in file
         reads = len(fq_dict)
 
         # counter for kmeres
         self.number_of_kmeres = 0
         seqs = len(fq_dict)
         c = 0
-        # lookup for all reads 
+        # lookup for all reads
         for i in fq_dict.keys():
             if c == number_of_reads:
                 break
             c += 1
-            # getting read                                                                                                          
+            # getting read
             single_read = fq_dict[i].seq
             # lookup for k-meres in read
             for j in range(len(single_read)):
                 # updating counter
                 self.number_of_kmeres += 1
 
-                # lookup for kmer                                                                                                       
-                self.lookup(str(single_read[j: j + self.k])) 
+                # lookup for kmer
+                self.lookup(str(single_read[j: j + self.k]))
+
