@@ -175,7 +175,7 @@ class AbaumanniiBloomfilter:
 
         # the new filter is a row that has to be inserted
 
-        # don't forget to save the filter after adding/training it
+        # !!! don't forget to save the filter after adding/training it !!!
 
         # creating new filter
         new = bitarray(self.array_size)
@@ -198,9 +198,26 @@ class AbaumanniiBloomfilter:
 
     def remove_filter(self, ct):
         # deletes filter
-        # !!! Counting starts with 0
+        # !!! Counting starts with 0, Don't forget to save afterwards !!!
         # also deletes name from name-list
 
+        if ct == 0:
+            # special case: deleting first filter by skipping the first n cells
+            self.matrix = self.matrix[self.array_size:]
+
+        elif (ct == self.clonetypes):
+            # skipping the last filter
+            self.matrix = self.matrix[: (self.array_size * (self.clonetypes - 1))]
+            print('letzte')
+
+        else:
+            # slicing matrix in 3 parts, the middle will be deleted
+            temp = self.matrix[(ct + 1) * self.array_size:]
+            self.matrix = self.matrix[: ct * self.array_size]
+            self.matrix.extend(temp)
+
+
+        # updating parameters
         del self.names[ct]
         del self.lookup_ct[ct]
         self.clonetypes -= 1
@@ -208,8 +225,8 @@ class AbaumanniiBloomfilter:
         # always deleting same position with pop()
         #
 
-        for i in range(self.array_size):
-            self.matrix.pop(ct * self.array_size)
+        #for i in range(self.array_size):
+            #self.matrix.pop(ct * self.array_size)
 
     def get_score(self):
         # calculates score for all clonetypes
@@ -235,6 +252,7 @@ class AbaumanniiBloomfilter:
         fq_dict = SeqIO.index(path, "fastq")
         # getting number of reads in file
         reads = len(fq_dict)
+        # SPÄTER FÜR FEHLERABFANG NUTZEN
 
         # counter for kmeres
         self.number_of_kmeres = 0
@@ -254,4 +272,3 @@ class AbaumanniiBloomfilter:
 
                 # lookup for kmer
                 self.lookup(str(single_read[j: j + self.k]))
-
