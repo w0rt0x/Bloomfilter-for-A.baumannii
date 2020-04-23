@@ -208,7 +208,6 @@ class AbaumanniiBloomfilter:
         elif (ct == self.clonetypes):
             # skipping the last filter
             self.matrix = self.matrix[: (self.array_size * (self.clonetypes - 1))]
-            print('letzte')
 
         else:
             # slicing matrix in 3 parts, the middle will be deleted
